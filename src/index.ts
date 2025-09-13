@@ -8,7 +8,13 @@ import { contentfulProxy } from './routes/contentful';
 import { healthCheck } from './routes/health';
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ path: '.env' });
+
+// Debug: Log environment variables (remove in production)
+console.log('🔧 Environment variables loaded:');
+console.log('PORT:', process.env.PORT);
+console.log('CONTENTFUL_SPACE_ID:', process.env.CONTENTFUL_SPACE_ID ? '✅ Set' : '❌ Missing');
+console.log('CONTENTFUL_ACCESS_TOKEN:', process.env.CONTENTFUL_ACCESS_TOKEN ? '✅ Set' : '❌ Missing');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,10 +41,25 @@ app.use(helmet({
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:3001'],
+  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000', 'http://localhost:3001', 'http://192.168.8.161:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Requested-With',
+    'X-Contentful-User-Agent',
+    'X-Contentful-Content-Type',
+    'X-Contentful-Space-Id',
+    'X-Contentful-Environment-Id',
+    'Accept',
+    'Origin',
+    'Referer',
+    'User-Agent',
+    'sec-ch-ua',
+    'sec-ch-ua-mobile',
+    'sec-ch-ua-platform'
+  ]
 }));
 
 // Rate limiting
@@ -57,6 +78,10 @@ app.use((req, res, next) => {
 // Routes
 app.use('/api/health', healthCheck);
 app.use('/api/contentful', contentfulProxy(cache));
+
+// Also handle direct Contentful API paths (without /api/contentful prefix)
+// This allows your frontend to use the same URLs as before, just pointing to your proxy
+app.use('/', contentfulProxy(cache));
 
 // 404 handler
 app.use('*', (req, res) => {

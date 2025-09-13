@@ -9,7 +9,7 @@ router.get('/', async (req: Request, res: Response) => {
     const startTime = Date.now();
     
     // Basic health check
-    const healthData = {
+    const healthData: any = {
       status: 'healthy',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
