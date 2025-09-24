@@ -20,7 +20,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Cache configuration - 5 minutes TTL
-const cache = new NodeCache({ stdTTL: 300 });
+const cache = new NodeCache({ stdTTL: 432000 }); // 5 days in seconds (5 * 24 * 60 * 60)
 
 // Rate limiting configuration
 const limiter = rateLimit({
