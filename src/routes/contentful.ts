@@ -33,6 +33,32 @@ const generateCacheKey = (path: string, query: any): string => {
   return `contentful:${path}:${queryString}`;
 };
 
+// URL transformation function to replace Contentful media URLs
+const transformContentfulUrls = (data: any): any => {
+  if (data === null || data === undefined) {
+    return data;
+  }
+
+  if (typeof data === 'string') {
+    // Replace images.ctfassets.net with images.soundtools.com
+    return data.replace(/images\.ctfassets\.net/g, 'images.soundtools.com');
+  }
+
+  if (Array.isArray(data)) {
+    return data.map(item => transformContentfulUrls(item));
+  }
+
+  if (typeof data === 'object') {
+    const transformed: any = {};
+    for (const [key, value] of Object.entries(data)) {
+      transformed[key] = transformContentfulUrls(value);
+    }
+    return transformed;
+  }
+
+  return data;
+};
+
 // Contentful proxy middleware
 export const contentfulProxy = (cache: NodeCache) => {
   // Handle full Contentful API paths like /spaces/{spaceId}/environments/{environment}/entries
@@ -53,7 +79,7 @@ export const contentfulProxy = (cache: NodeCache) => {
       const cachedData = cache.get(cacheKey);
       if (cachedData) {
         console.log('📦 Cache hit for entries');
-        return res.json(cachedData);
+        return res.json(transformContentfulUrls(cachedData));
       }
 
       console.log('🌐 Fetching entries from Contentful');
@@ -61,11 +87,14 @@ export const contentfulProxy = (cache: NodeCache) => {
         params: req.query
       });
 
-      // Cache the response
-      cache.set(cacheKey, response.data);
+      // Transform URLs in the response data
+      const transformedData = transformContentfulUrls(response.data);
+      
+      // Cache the transformed response
+      cache.set(cacheKey, transformedData);
       console.log('💾 Cached entries response');
 
-      return res.json(response.data);
+      return res.json(transformedData);
     } catch (error: any) {
       console.error('❌ Error fetching entries:', error.message);
       
@@ -102,7 +131,7 @@ export const contentfulProxy = (cache: NodeCache) => {
       const cachedData = cache.get(cacheKey);
       if (cachedData) {
         console.log(`📦 Cache hit for entry ${entryId}`);
-        return res.json(cachedData);
+        return res.json(transformContentfulUrls(cachedData));
       }
 
       console.log(`🌐 Fetching entry ${entryId} from Contentful`);
@@ -110,11 +139,14 @@ export const contentfulProxy = (cache: NodeCache) => {
         params: req.query
       });
 
-      // Cache the response
-      cache.set(cacheKey, response.data);
+      // Transform URLs in the response data
+      const transformedData = transformContentfulUrls(response.data);
+      
+      // Cache the transformed response
+      cache.set(cacheKey, transformedData);
       console.log(`💾 Cached entry ${entryId} response`);
 
-      return res.json(response.data);
+      return res.json(transformedData);
     } catch (error: any) {
       console.error(`❌ Error fetching entry ${req.params.entryId}:`, error.message);
       
@@ -151,7 +183,7 @@ export const contentfulProxy = (cache: NodeCache) => {
       const cachedData = cache.get(cacheKey);
       if (cachedData) {
         console.log('📦 Cache hit for assets');
-        return res.json(cachedData);
+        return res.json(transformContentfulUrls(cachedData));
       }
 
       console.log('🌐 Fetching assets from Contentful');
@@ -159,11 +191,14 @@ export const contentfulProxy = (cache: NodeCache) => {
         params: req.query
       });
 
-      // Cache the response
-      cache.set(cacheKey, response.data);
+      // Transform URLs in the response data
+      const transformedData = transformContentfulUrls(response.data);
+      
+      // Cache the transformed response
+      cache.set(cacheKey, transformedData);
       console.log('💾 Cached assets response');
 
-      return res.json(response.data);
+      return res.json(transformedData);
     } catch (error: any) {
       console.error('❌ Error fetching assets:', error.message);
       
@@ -200,7 +235,7 @@ export const contentfulProxy = (cache: NodeCache) => {
       const cachedData = cache.get(cacheKey);
       if (cachedData) {
         console.log(`📦 Cache hit for asset ${assetId}`);
-        return res.json(cachedData);
+        return res.json(transformContentfulUrls(cachedData));
       }
 
       console.log(`🌐 Fetching asset ${assetId} from Contentful`);
@@ -208,11 +243,14 @@ export const contentfulProxy = (cache: NodeCache) => {
         params: req.query
       });
 
-      // Cache the response
-      cache.set(cacheKey, response.data);
+      // Transform URLs in the response data
+      const transformedData = transformContentfulUrls(response.data);
+      
+      // Cache the transformed response
+      cache.set(cacheKey, transformedData);
       console.log(`💾 Cached asset ${assetId} response`);
 
-      return res.json(response.data);
+      return res.json(transformedData);
     } catch (error: any) {
       console.error(`❌ Error fetching asset ${req.params.assetId}:`, error.message);
       
@@ -249,7 +287,7 @@ export const contentfulProxy = (cache: NodeCache) => {
       const cachedData = cache.get(cacheKey);
       if (cachedData) {
         console.log('📦 Cache hit for content types');
-        return res.json(cachedData);
+        return res.json(transformContentfulUrls(cachedData));
       }
 
       console.log('🌐 Fetching content types from Contentful');
@@ -257,11 +295,14 @@ export const contentfulProxy = (cache: NodeCache) => {
         params: req.query
       });
 
-      // Cache the response
-      cache.set(cacheKey, response.data);
+      // Transform URLs in the response data
+      const transformedData = transformContentfulUrls(response.data);
+      
+      // Cache the transformed response
+      cache.set(cacheKey, transformedData);
       console.log('💾 Cached content types response');
 
-      return res.json(response.data);
+      return res.json(transformedData);
     } catch (error: any) {
       console.error('❌ Error fetching content types:', error.message);
       
@@ -298,7 +339,7 @@ export const contentfulProxy = (cache: NodeCache) => {
       const cachedData = cache.get(cacheKey);
       if (cachedData) {
         console.log('📦 Cache hit for entries');
-        return res.json(cachedData);
+        return res.json(transformContentfulUrls(cachedData));
       }
 
       console.log('🌐 Fetching entries from Contentful');
@@ -306,11 +347,14 @@ export const contentfulProxy = (cache: NodeCache) => {
         params: req.query
       });
 
-      // Cache the response
-      cache.set(cacheKey, response.data);
+      // Transform URLs in the response data
+      const transformedData = transformContentfulUrls(response.data);
+      
+      // Cache the transformed response
+      cache.set(cacheKey, transformedData);
       console.log('💾 Cached entries response');
 
-      return res.json(response.data);
+      return res.json(transformedData);
     } catch (error: any) {
       console.error('❌ Error fetching entries:', error.message);
       
@@ -347,7 +391,7 @@ export const contentfulProxy = (cache: NodeCache) => {
       const cachedData = cache.get(cacheKey);
       if (cachedData) {
         console.log(`📦 Cache hit for entry ${entryId}`);
-        return res.json(cachedData);
+        return res.json(transformContentfulUrls(cachedData));
       }
 
       console.log(`🌐 Fetching entry ${entryId} from Contentful`);
@@ -355,11 +399,14 @@ export const contentfulProxy = (cache: NodeCache) => {
         params: req.query
       });
 
-      // Cache the response
-      cache.set(cacheKey, response.data);
+      // Transform URLs in the response data
+      const transformedData = transformContentfulUrls(response.data);
+      
+      // Cache the transformed response
+      cache.set(cacheKey, transformedData);
       console.log(`💾 Cached entry ${entryId} response`);
 
-      return res.json(response.data);
+      return res.json(transformedData);
     } catch (error: any) {
       console.error(`❌ Error fetching entry ${req.params.entryId}:`, error.message);
       
@@ -395,7 +442,7 @@ export const contentfulProxy = (cache: NodeCache) => {
       const cachedData = cache.get(cacheKey);
       if (cachedData) {
         console.log('📦 Cache hit for assets');
-        return res.json(cachedData);
+        return res.json(transformContentfulUrls(cachedData));
       }
 
       console.log('🌐 Fetching assets from Contentful');
@@ -403,11 +450,14 @@ export const contentfulProxy = (cache: NodeCache) => {
         params: req.query
       });
 
-      // Cache the response
-      cache.set(cacheKey, response.data);
+      // Transform URLs in the response data
+      const transformedData = transformContentfulUrls(response.data);
+      
+      // Cache the transformed response
+      cache.set(cacheKey, transformedData);
       console.log('💾 Cached assets response');
 
-      return res.json(response.data);
+      return res.json(transformedData);
     } catch (error: any) {
       console.error('❌ Error fetching assets:', error.message);
       
@@ -444,7 +494,7 @@ export const contentfulProxy = (cache: NodeCache) => {
       const cachedData = cache.get(cacheKey);
       if (cachedData) {
         console.log(`📦 Cache hit for asset ${assetId}`);
-        return res.json(cachedData);
+        return res.json(transformContentfulUrls(cachedData));
       }
 
       console.log(`🌐 Fetching asset ${assetId} from Contentful`);
@@ -452,11 +502,14 @@ export const contentfulProxy = (cache: NodeCache) => {
         params: req.query
       });
 
-      // Cache the response
-      cache.set(cacheKey, response.data);
+      // Transform URLs in the response data
+      const transformedData = transformContentfulUrls(response.data);
+      
+      // Cache the transformed response
+      cache.set(cacheKey, transformedData);
       console.log(`💾 Cached asset ${assetId} response`);
 
-      return res.json(response.data);
+      return res.json(transformedData);
     } catch (error: any) {
       console.error(`❌ Error fetching asset ${req.params.assetId}:`, error.message);
       
@@ -492,7 +545,7 @@ export const contentfulProxy = (cache: NodeCache) => {
       const cachedData = cache.get(cacheKey);
       if (cachedData) {
         console.log('📦 Cache hit for content types');
-        return res.json(cachedData);
+        return res.json(transformContentfulUrls(cachedData));
       }
 
       console.log('🌐 Fetching content types from Contentful');
@@ -500,11 +553,14 @@ export const contentfulProxy = (cache: NodeCache) => {
         params: req.query
       });
 
-      // Cache the response
-      cache.set(cacheKey, response.data);
+      // Transform URLs in the response data
+      const transformedData = transformContentfulUrls(response.data);
+      
+      // Cache the transformed response
+      cache.set(cacheKey, transformedData);
       console.log('💾 Cached content types response');
 
-      return res.json(response.data);
+      return res.json(transformedData);
     } catch (error: any) {
       console.error('❌ Error fetching content types:', error.message);
       
