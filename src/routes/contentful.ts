@@ -580,7 +580,7 @@ export const contentfulProxy = (cache: NodeCache) => {
   });
 
   // Clear cache endpoint (for development/admin use)
-  router.delete('/cache', (req: Request, res: Response) => {
+  router.get('/cache/clear', (req: Request, res: Response) => {
     try {
       cache.flushAll();
       console.log('🗑️ Cache cleared');
